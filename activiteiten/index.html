@@ -95,6 +95,34 @@
   }
   .nav-cta:hover{background:var(--gold); color:var(--night); border-color:var(--gold);}
 
+  /* NAV TOGGLE (hamburger) */
+  .nav-toggle{
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-end;
+    gap:6px;
+    width:32px; height:26px;
+    background:none; border:none; cursor:pointer;
+    padding:0; z-index:70;
+  }
+  .nav-toggle span{
+    display:block; height:1.5px; width:100%;
+    background:var(--gold-bright);
+    transition:transform .35s ease, opacity .35s ease, width .35s ease;
+  }
+  .nav-toggle.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg);}
+  .nav-toggle.open span:nth-child(2){opacity:0;}
+  .nav-toggle.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg);}
+  .nav-overlay{
+    display:none;
+    position:fixed; inset:0; z-index:55;
+    background:rgba(8,22,31,0.6);
+    opacity:0; pointer-events:none;
+    transition:opacity .35s ease;
+  }
+  .nav-overlay.open{opacity:1; pointer-events:auto;}
+
   /* PAGE HEADER */
   .page-header{
     min-height:52vh;
@@ -207,7 +235,23 @@
   footer p{color:var(--sand-dim); font-size:0.78rem; letter-spacing:0.04em;}
 
   @media (max-width:860px){
-    nav ul{display:none;}
+    .nav-toggle{display:flex;}
+    .nav-cta{display:none;}
+    .nav-overlay{display:block;}
+    nav ul{
+      display:flex; flex-direction:column; align-items:flex-start;
+      gap:26px;
+      position:fixed; top:0; right:0; height:100vh; width:76vw; max-width:320px;
+      background:var(--deep-azure);
+      border-left:1px solid var(--line);
+      padding:110px 42px 40px;
+      transform:translateX(100%);
+      transition:transform .4s cubic-bezier(.22,1,.36,1);
+      z-index:60;
+      box-shadow:-20px 0 50px rgba(0,0,0,0.45);
+    }
+    nav ul.open{transform:translateX(0);}
+    nav ul a{font-size:0.95rem;}
     .activity-grid{grid-template-columns:1fr;}
     section{padding:80px 6vw;}
     .activity{padding:38px 32px;}
@@ -235,7 +279,11 @@
     <li><a href="..#contact">Contact</a></li>
   </ul>
   <a class="nav-cta" href="#booking">Reserveren</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="nav-overlay" id="navOverlay"></div>
 
 <header class="page-header">
   <div class="page-header-bg"></div>
@@ -385,6 +433,29 @@
     const nav = document.querySelector('nav .brand img');
     const source = nav ? nav.src : '';
     document.querySelectorAll('.logo-clone').forEach(img => { if(!img.src || img.src === window.location.href) img.src = source; });
+
+    const toggle = document.getElementById('navToggle');
+    const menu = document.querySelector('nav ul');
+    const overlay = document.getElementById('navOverlay');
+    const closeMenu = () => {
+      toggle.classList.remove('open');
+      menu.classList.remove('open');
+      overlay.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+    const openMenu = () => {
+      toggle.classList.add('open');
+      menu.classList.add('open');
+      overlay.classList.add('open');
+      toggle.setAttribute('aria-expanded', 'true');
+    };
+    if (toggle && menu && overlay) {
+      toggle.addEventListener('click', () => {
+        toggle.classList.contains('open') ? closeMenu() : openMenu();
+      });
+      overlay.addEventListener('click', closeMenu);
+      menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+    }
   });
 </script>
 </body>
